@@ -1,0 +1,96 @@
+language: c
+compiler:
+  - gcc
+
+addons:
+    apt:
+      packages:
+         - bc
+         - lftp
+         - gcc-multilib
+         - uboot-mkimage	 
+
+cache:
+  apt: true
+#  ccache: true
+  directories:
+     - $HOME/local
+#    - $HOME/.ccache
+
+#sudo: required
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+#   - secure: "qoWQ6Bi/n4mVP+wlDINo3cPQDfC8V7Yofjh+WmBxKwLqP+RPzCgEkbPqitAZhRpr2QLe/Eehfwx0WvuEJjucOm5lWEkFpY32VCXCjswK5R4S1G2LPobo9BOLkPY9pjahru56HPWDGAbIVQ74UXmnkPCFfOOOZLLXry1pzbKfDNdX+LryTvtrK9e4MlvBIp2xNQgzZRLWos8JoxncvW04jYaRBAQ9zn+DWiZxlEHzdClPLEQsJnKGmk3LaWCV1CRg0ZXQvecieEWmdN5mrpNF4H8ry9A4No3rSXMgloucJEWaHqCMFYXuWcqgQY4GHemHiF06bM6LF4fFAPWupFW++e03NRFrbm7KF3xWpSReTltrKA0kz2ctdWvfFN+DZSZ+5R2rmcoFG3dp+7mO5WcT5gTfHrF8ZxfHMFR9MqQHMiOntpuXXZTMq7uaqURRlzFeZ0rFluzK7S2EEbn1nQEuWdoGvMBSRFHFU5nvXEq1ooQRAY/K15XXHTHni9/9yU/+9+hG2tDbv3gtkYMnHFjtuDrQeQkfTKuWe94B+lVmWaC7ozO4agE555bQXYGLP2KF9DmqP1dkRLSGNAMJXN6NqA3l9ufk16mo+fjxT7YnN4mo5/xxMpxlN+e3OLHzrpZuwS/bvxK2kEGJdDvAprNWwkfy7VA+8dvkkPjeFS07tyk="
+
+
+#  coverity_scan:
+#    project:
+#      name: "sudipm-mukherjee/parport"
+#      description: "linux 4.2"
+#    notification_email: sudipm.mukherjee@gmail.com
+#    build_command_prepend: "make allmodconfig; make oldconfig && make prepare;"
+#    build_command:   "make -j2"
+#    branch_pattern: linux
+  matrix:
+      - fld="i386,defconfig"
+      - fld="i386,allmodconfig"
+      - fld="x86_64,defconfig"
+      - fld="x86_64,allmodconfig"
+      - fld="alpha,defconfig"
+      - fld="alpha,allmodconfig"
+      - fld="arm,defconfig"
+      - fld="arm,allmodconfig"
+      - fld="avr32,defconfig"
+      - fld="avr32,allmodconfig"
+      - fld="blackfin,defconfig"
+      - fld="cris,defconfig"
+      - fld="cris,allmodconfig"
+#      - fld=ia64
+      - fld="m32r,defconfig"
+      - fld="m32r,allmodconfig"
+      - fld="m68k,defconfig"
+      - fld="m68k,allmodconfig"
+#      - fld=microblaze
+      - fld="mips,defconfig"
+      - fld="mips,allmodconfig"
+#      - fld=mn10300
+#      - fld=openrisc tough for now
+#      - fld=parisc
+      - fld="powerpc,defconfig"
+      - fld="powerpc,allmodconfig"
+      - fld="s390,defconfig"
+      - fld="s390,allmodconfig"
+#      - fld=sh
+      - fld="sparc,defconfig"
+      - fld="sparc,allmodconfig"
+      - fld="sparc64,defconfig"
+      - fld="sparc64,allmodconfig"
+      - fld="tile,defconfig"
+      - fld="tile,allmodconfig"
+      - fld="tilegx,defconfig"
+      - fld="tilegx,allmodconfig"
+#      - fld=um check contact geert
+      - fld="xtensa,defconfig"
+      - fld="xtensa,allmodconfig"
+
+before_script:
+     - mkdir -p $HOME/bin
+     - cp ./make.cross $HOME/bin/.
+
+script:
+    - a=(`echo $fld | tr ',' '\n'`)
+    - mkdir obj-${a[0]}
+    - make.cross ARCH=${a[0]} ${a[1]}
+    - make.cross ARCH=${a[0]} oldconfig
+    - make.cross ARCH=${a[0]} prepare
+    - make.cross ARCH=${a[0]}
+
+notifications:
+    email:
+      recipients:
+            - sudipm.mukherjee@gmail.com
+      on_success: always
+      on_failure: always
